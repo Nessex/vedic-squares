@@ -26,7 +26,7 @@ const cellStyle = function(colors, base, val) {
 const randomColor = () => "#" + ((1<<24)*Math.random() | 0).toString(16);
 
 function App() {
-  const [base, setBase] = useState(7);
+  const [base, setBase] = useState(10);
   const [data, setData] = useState([]);
   const [colors, setColors] = useState([]);
 
