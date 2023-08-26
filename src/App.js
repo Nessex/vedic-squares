@@ -1,6 +1,44 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
+const colorsOnlySize = 8;
+
+function unicodeRange(start, end) {
+  let len = end - start;
+  return [...Array(len).keys()].map(d => String.fromCharCode(d + start));
+}
+
+const dictionary = [
+  ...unicodeRange(48, 58),
+  ...unicodeRange(97, 123),
+  ...unicodeRange(1488, 1515),
+  ...unicodeRange(12459, 12526),
+  ...unicodeRange(12363, 12430),
+  ...unicodeRange(5792, 5881),
+  ...unicodeRange(12688, 12704),
+];
+
+function _toString(num, radix) {
+  let out = "";
+
+  while (num > 0) {
+    let rem = num % radix;
+    num = Math.floor(num / radix);
+
+    out = dictionary[rem] + out;
+  }
+
+  return out;
+}
+
+function _parseInt(s, radix) {
+  let sum = 0;
+
+  [...s].forEach((v, i) => sum = sum * radix + dictionary.indexOf(v));
+
+  return sum;
+}
+
 const tableStyle = {
   border: '1px solid #CCC',
   borderCollapse: 'collapse',
@@ -12,12 +50,19 @@ const tableCellStyle = {
   height: '2em',
 }
 
-const cellStyle = function(colors, base, val) {
-  let idx = parseInt(val, base);
+const cellStyle = function(colors, base, val, colorsOnly) {
+  let idx = _parseInt(val, base);
 
   let out = Object.assign({}, tableCellStyle);
 
   out.backgroundColor = colors[idx];
+
+  if (colorsOnly) {
+    out.boxSizing = 'border-box';
+    out.width = colorsOnlySize + 'px';
+    out.height = colorsOnlySize + 'px';
+    out.lineHeight = '0';
+  }
 
   return out;
 }
@@ -29,21 +74,22 @@ function App() {
   const [base, setBase] = useState(10);
   const [data, setData] = useState([]);
   const [colors, setColors] = useState([]);
+  const [colorsOnly, setColorsOnly] = useState(false);
 
   useEffect(() => {
     let mulTable = [];
     for (let y = 1; y < base; y++) {
       for (let x = 1; x < base; x++) {
-        mulTable.push((x * y).toString(base));
+        mulTable.push(_toString((x * y), base));
       }
     }
 
     const digitalRoots = mulTable.map(val => {
-      while (val.length > 1) {
-        val = val.split("")
-            .map(d => parseInt(d, base))
+      while ([...val].length > 1) {
+        val = _toString([...val]
+            .map(d => _parseInt(d, base))
             // Sum all values
-            .reduce((p, c) => p + c, 0).toString(base);
+            .reduce((p, c) => p + c, 0), base);
       }
 
       return val;
@@ -63,7 +109,7 @@ function App() {
     setData(rows);
 
     let colors = [];
-    for (let i = 0; i < base; i++) {
+    for (let i = 0; i < base * 2; i++) {
       colors.push(randomColor());
     }
 
@@ -71,22 +117,41 @@ function App() {
 
   }, [base]);
 
+  let handleToggleColorsOnly = (e) => {
+    setColorsOnly(e.target.checked);
+  };
+
+  let ts = Object.assign({}, tableStyle);
+
+  if (colorsOnly) {
+    ts.width = colorsOnlySize * base + 'px';
+    ts.height = colorsOnlySize * base + 'px';
+  } else {
+    ts.width = 2 * base + 'em';
+    ts.height = 2 * base + 'em';
+  }
+
   return (
     <div className="App">
       <header className="App-header">
         <label>
           Numeric Base:&nbsp;
-          <input id="base-input" type="number" min={2} max={36} defaultValue={base} onChange={(e) => setBase(parseInt(e.target.value))} />
+          <input id="base-input" type="number" min={2} max={dictionary.length} defaultValue={base} onChange={(e) => setBase(parseInt(e.target.value))} />
+          <br />
+          <input type="checkbox" id="colors-only" value="colors-only" onChange={handleToggleColorsOnly} />
+          <label for="colors-only">Colors Only</label>
         </label>
 
-        <table style={tableStyle}>
+        <table style={ts}>
+          <tbody>
           { data.map(row =>
             <tr>
-              { row.map(v =>
-                  <td style={cellStyle(colors, base, v)}>{v}</td>
+              { row.map((v, i) =>
+                  <td key={i} style={cellStyle(colors, base, v, colorsOnly)}>{ colorsOnly ? null : v }</td>
               )}
             </tr>
           )}
+          </tbody>
         </table>
       </header>
     </div>
