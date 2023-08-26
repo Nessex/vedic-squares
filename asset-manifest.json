@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/vedic-squares/static/css/main.21861ecd.css",
+    "main.js": "/vedic-squares/static/js/main.b7c352b8.js",
+    "static/js/787.838458e8.chunk.js": "/vedic-squares/static/js/787.838458e8.chunk.js",
+    "index.html": "/vedic-squares/index.html",
+    "main.21861ecd.css.map": "/vedic-squares/static/css/main.21861ecd.css.map",
+    "main.b7c352b8.js.map": "/vedic-squares/static/js/main.b7c352b8.js.map",
+    "787.838458e8.chunk.js.map": "/vedic-squares/static/js/787.838458e8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.21861ecd.css",
+    "static/js/main.b7c352b8.js"
+  ]
+}
